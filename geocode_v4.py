@@ -5,7 +5,7 @@ import os
 
 # === STEP 1: Load poverty GEOIDs (already full FIPS codes like '01001021100') ===
 poverty_data = pd.read_csv(
-    "/Users/michaelhayashi/development/hpy/geocode/list-of-census-tracts-in-persistent-poverty.csv",
+    "list-of-census-tracts-in-persistent-poverty.csv",
     dtype={'Tract': str}
 )
 poverty_tracts = set(poverty_data['Tract'])
@@ -20,14 +20,12 @@ input_file = "batch_input.csv"
 with open(input_file, "w", newline="") as f:
     writer = csv.writer(f)
     for i, full_address in enumerate(lines):
-        # Naive split assuming format: "777 Brockton Avenue, Abington MA 2351"
+        # Naive split assuming format: "777 Brockton Avenue, Abington, MA 2351"
         try:
             street, citystatezip = full_address.split(",", 1)
-            parts = citystatezip.strip().split()
-            city = " ".join(parts[:-2])
-            state = parts[-2]
-            zipcode = parts[-1]
-            writer.writerow([i, street.strip(), city.strip(), state.strip(), zipcode.strip()])
+            city, statezip = citystatezip.strip().split(",", 1)
+            state, zip = tuple(statezip.strip().split(" "))
+            writer.writerow([i, street.strip(), city.strip(), state.strip(), zip.strip()])
         except Exception as e:
             print(f"⚠️ Could not parse address: {full_address} — {e}")
 
